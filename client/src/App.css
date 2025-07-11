@@ -1,10 +1,66 @@
-html, body, #root {
-  height: 100%;
+body, html, #root {
   margin: 0;
-  font-family: 'Inter', sans-serif;
+  padding: 0;
+  height: 100%;
+  font-family: 'Arial', sans-serif;
 }
 
-.leaflet-container {
+.container {
+  display: flex;
+  height: 100vh;
+  background-color: #000;
+  color: #fff;
+}
+
+.left {
+  flex: 1;
+  padding: 40px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  background-color: #000;
+}
+
+.left h1 {
+  font-size: 28px;
+  color: #ffae42;
+  text-transform: uppercase;
+  margin-bottom: 30px;
+}
+
+.info p {
+  margin: 10px 0;
+  font-size: 18px;
+}
+
+.info span {
+  font-weight: bold;
+  color: #ffae42;
+}
+
+.stop-btn {
+  margin-top: 40px;
+  padding: 12px 24px;
+  font-size: 16px;
+  background-color: transparent;
+  border: 2px solid #ffae42;
+  color: #ffae42;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  width: fit-content;
+}
+
+.stop-btn:hover {
+  background-color: #ffae42;
+  color: #000;
+}
+
+.right {
+  flex: 1.5;
+}
+
+.map {
   width: 100%;
   height: 100%;
+  filter: brightness(0.9);
 }
