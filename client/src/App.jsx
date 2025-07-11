@@ -1,11 +1,11 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import axios from "axios";
 import { MapContainer, TileLayer, Marker, Popup } from "react-leaflet";
 import L from "leaflet";
 import "./App.css";
 import "leaflet/dist/leaflet.css";
 
-// Custom ISS icon
+// Custom icon for ISS
 const issIcon = new L.Icon({
   iconUrl: "https://cdn-icons-png.flaticon.com/512/3212/3212608.png",
   iconSize: [40, 40],
@@ -14,38 +14,49 @@ const issIcon = new L.Icon({
 function App() {
   const [issData, setIssData] = useState(null);
   const [tracking, setTracking] = useState(true);
+  const intervalRef = useRef(null);
+
+  const fetchISS = async () => {
+    try {
+      const { data } = await axios.get("http://localhost:5000/api/iss");
+      setIssData(data);
+    } catch (err) {
+      console.error("Error fetching ISS data", err);
+    }
+  };
 
   useEffect(() => {
-    const fetchISS = async () => {
-      try {
-        const { data } = await axios.get("http://localhost:5000/api/iss");
-        setIssData(data);
-      } catch (error) {
-        console.error("Error fetching ISS data:", error);
-      }
-    };
+    if (tracking) {
+      fetchISS();
+      intervalRef.current = setInterval(fetchISS, 5000);
+    } else {
+      clearInterval(intervalRef.current);
+    }
 
-    fetchISS();
-    let interval = setInterval(fetchISS, 5000);
-
-    return () => clearInterval(interval);
+    return () => clearInterval(intervalRef.current);
   }, [tracking]);
 
-  const stopTracking = () => setTracking(false);
+  const toggleTracking = () => {
+    setTracking(prev => !prev);
+  };
 
   return (
     <div className="container">
       <div className="left">
         <h1>Track the International Space Station</h1>
         <div className="info">
-          <p><span>Country:</span> Not available</p>
-          <p><span>State:</span> Not available</p>
+          <p><span>Country:</span> {issData?.country || "Not available"}</p>
+          <p><span>State:</span> {issData?.state || "Not available"}</p>
           <p><span>Latitude:</span> {issData ? issData.latitude.toFixed(4) : "Loading..."}</p>
           <p><span>Longitude:</span> {issData ? issData.longitude.toFixed(4) : "Loading..."}</p>
-          <p><span>Velocity:</span> {issData ? (issData.velocity.toFixed(2) + " kmph") : "Loading..."}</p>
-          <p><span>Altitude:</span> {issData ? (issData.altitude.toFixed(2) + " km") : "Loading..."}</p>
+          <p><span>Velocity:</span> {issData ? issData.velocity.toFixed(2) + " kmph" : "Loading..."}</p>
+          <p><span>Altitude:</span> {issData ? issData.altitude.toFixed(2) + " km" : "Loading..."}</p>
         </div>
-        <button className="stop-btn" onClick={stopTracking}>Stop Tracking</button>
+
+        <button className="track-btn" onClick={toggleTracking}>
+  <span>{tracking ? "STOP TRACKING" : "START TRACKING"}</span>
+</button>
+
       </div>
 
       <div className="right">
